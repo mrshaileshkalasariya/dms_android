@@ -8,11 +8,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.secureapps.dms.android.ApiInterface.ApiService
+import com.secureapps.dms.android.Retrofit.RetrofitClient
+import com.secureapps.dms.android.ApiInterface.LoginRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var apiService: ApiService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        // Initialize Retrofit service
+        apiService = RetrofitClient.instance
 
         val emailEditText = findViewById<EditText>(R.id.etEmail)
         val passwordEditText = findViewById<EditText>(R.id.etPassword)
@@ -20,7 +32,7 @@ class LoginActivity : AppCompatActivity() {
         val dropdownSpinner = findViewById<Spinner>(R.id.dropdownSpinner)
 
         // Dropdown values (first item is placeholder)
-        val userTypes = listOf("Select login type", "Branch", "Customer")
+        val userTypes = listOf("Select login type", "Customer", "Branch")
 
         // Custom adapter to disable placeholder & set colors
         val adapter = object : ArrayAdapter<String>(
@@ -69,16 +81,72 @@ class LoginActivity : AppCompatActivity() {
 
         // Login button click
         loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
+            val mobile = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
-            val selectedType = dropdownSpinner.selectedItem.toString()
+            val selectedType = dropdownSpinner.selectedItemPosition // Get position instead of string
 
-            if (email.isNotEmpty() && password.isNotEmpty() && selectedType != "Select login type") {
-                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-            } else {
+            if (mobile.isEmpty() || password.isEmpty() || selectedType == 0) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Map spinner position to usertype (1 for Customer, 2 for Branch)
+            val userType = selectedType // Assuming position 1 is Customer, position 2 is Branch
+
+            // Create login request
+            val loginRequest = LoginRequest(
+                mobile = mobile,
+                password = password,
+                usertype = userType
+            )
+
+            // Call API in a coroutine
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = apiService.login(loginRequest)
+
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful) {
+                            val loginResponse = response.body()
+                            if (loginResponse?.status == true) {
+                                // Login successful
+                                Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+
+                                // Save user data if needed
+                                val userData = loginResponse.data?.user
+
+                                // Start MainActivity
+                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                // Login failed
+                                Toast.makeText(this@LoginActivity, "Invalid credentials!", Toast.LENGTH_SHORT).show()
+//                                Toast.makeText(
+//                                    this@LoginActivity,
+//                                    loginResponse?.message ?: "Invalid credentials",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+                            }
+                        } else {
+                            // API call failed
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "Login failed: ${response.message()}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Error: ${e.localizedMessage}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        Log.e("LoginError", "API call failed", e)
+                    }
+                }
             }
         }
     }
