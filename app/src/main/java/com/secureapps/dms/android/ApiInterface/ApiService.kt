@@ -1,5 +1,7 @@
 package com.secureapps.dms.android.ApiInterface
 
+//import com.secureapps.dms.android.ReportResponse
+import com.secureapps.dms.android.model.ReportResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -7,6 +9,9 @@ import retrofit2.http.POST
 interface ApiService {
     @POST("api/login.php")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
+
+    @POST("api/jget_report.php")  // Not iget_report.php
+    suspend fun getReports(): Response<ReportResponse>
 }
 
 data class LoginRequest(

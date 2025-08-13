@@ -49,4 +49,10 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.logging.interceptor)
     implementation (libs.kotlinx.coroutines.android)
+
+    implementation (libs.androidx.lifecycle.runtime.ktx)
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.logging.interceptor.v4110)
+    implementation (libs.material.v190)
 }

@@ -4,4 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="teal_700">#018786</color>
     <color name="teal_200">#03DAC5</color>
+    <color name="gray">#98B4EDEB</color>
+    <color name="colorAmount">#4CAF50</color>
+    <color name="colorRefund">#F44336</color>
 </resources>
