@@ -5,7 +5,11 @@ data class Transaction(
     val Product: String,
     val Quantity: Int,
     val Amount: Double,
-    val FormattedTransactionDate: String
+    val FormattedTransactionDate: String,
+    val CustomerFirstName: String,
+    val CustomerLastName: String,
+    val CustomerMobile: String,
+    val Notes: String,
 )
 
 data class ReportResponse(
@@ -13,3 +17,4 @@ data class ReportResponse(
     val data: List<Transaction>,
     val message: String
 )
+

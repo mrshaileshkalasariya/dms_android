@@ -1,4 +1,4 @@
-package com.secureapps.dms.android
+package com.secureapps.dms.android.Activity
 
 import android.content.Intent
 import android.graphics.Color
@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.secureapps.dms.android.ApiInterface.ApiService
 import com.secureapps.dms.android.Retrofit.RetrofitClient
 import com.secureapps.dms.android.ApiInterface.LoginRequest
+import com.secureapps.dms.android.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,21 +84,21 @@ class LoginActivity : AppCompatActivity() {
         loginButton.setOnClickListener {
             val mobile = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
-            val selectedType = dropdownSpinner.selectedItemPosition // Get position instead of string
+            val selectedTypePosition = dropdownSpinner.selectedItemPosition
 
-            if (mobile.isEmpty() || password.isEmpty() || selectedType == 0) {
+            if (mobile.isEmpty() || password.isEmpty() || selectedTypePosition == 0) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Map spinner position to usertype (1 for Customer, 2 for Branch)
-            val userType = selectedType // Assuming position 1 is Customer, position 2 is Branch
+            // Get the actual selected type as string
+            val selectedType = userTypes[selectedTypePosition]
 
             // Create login request
             val loginRequest = LoginRequest(
                 mobile = mobile,
                 password = password,
-                usertype = userType
+                usertype = selectedTypePosition // Send position as usertype (1 for Customer, 2 for Branch)
             )
 
             // Call API in a coroutine
@@ -112,21 +113,20 @@ class LoginActivity : AppCompatActivity() {
                                 // Login successful
                                 Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
 
-                                // Save user data if needed
-                                val userData = loginResponse.data?.user
+                                // Determine which activity to launch based on user type
+                                val intent = when (selectedType) {
+                                    "Customer" -> Intent(this@LoginActivity, MainActivity::class.java)
+                                    "Branch" -> Intent(this@LoginActivity, BranchReport::class.java)
+                                    else -> Intent(this@LoginActivity, MainActivity::class.java) // default
+                                }
 
-                                // Start MainActivity
-                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                // Start the appropriate activity
                                 startActivity(intent)
                                 finish()
-                            } else {
+                            }
+                            else {
                                 // Login failed
                                 Toast.makeText(this@LoginActivity, "Invalid credentials!", Toast.LENGTH_SHORT).show()
-//                                Toast.makeText(
-//                                    this@LoginActivity,
-//                                    loginResponse?.message ?: "Invalid credentials",
-//                                    Toast.LENGTH_SHORT
-//                                ).show()
                             }
                         } else {
                             // API call failed

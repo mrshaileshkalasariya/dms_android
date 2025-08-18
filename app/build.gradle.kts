@@ -55,4 +55,8 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.logging.interceptor.v4110)
     implementation (libs.material.v190)
+    implementation (libs.glide)
+    annotationProcessor (libs.compiler)
+    implementation (libs.kotlinx.coroutines.android.v171)
+    implementation (libs.androidx.cardview)
 }

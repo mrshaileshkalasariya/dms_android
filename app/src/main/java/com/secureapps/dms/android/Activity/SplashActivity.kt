@@ -1,9 +1,10 @@
-package com.secureapps.dms.android
+package com.secureapps.dms.android.Activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
+import com.secureapps.dms.android.R
 import kotlinx.coroutines.*
 
 @SuppressLint("CustomSplashScreen")
