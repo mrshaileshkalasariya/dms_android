@@ -1,7 +1,7 @@
 package com.secureapps.dms.android.ApiInterface
 
-import com.secureapps.dms.android.Model.PaymentReportResponse
-import com.secureapps.dms.android.model.ReportResponse
+import com.secureapps.dms.android.PaymentReportResponse
+import com.secureapps.dms.android.ReportResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -15,6 +15,9 @@ interface ApiService {
 
     @POST("api/get_payment_report.php")
     suspend fun getPaymentReports(): Response<PaymentReportResponse>
+
+//    @POST("api/get_customer_details.php")
+//    suspend fun getCustomerDetails(): Response<LoginResponse>
 }
 
 data class LoginRequest(
@@ -44,5 +47,5 @@ data class User(
     val OutstandingAmount: Int?,
     val LimitAmount: Int?,
     val LimitNotifyAmount: Int?,
-    val PaymentQTmage: String?
+    val PaymentQrImage: String?
 )

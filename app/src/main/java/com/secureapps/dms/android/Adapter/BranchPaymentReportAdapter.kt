@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.secureapps.dms.android.PaymentReport
 import com.secureapps.dms.android.R
 
-class PaymentReportAdapter(private val paymentList: MutableList<PaymentReport> = mutableListOf()) :
-    RecyclerView.Adapter<PaymentReportAdapter.PaymentViewHolder>() {
+class BranchPaymentReportAdapter(private val paymentList: MutableList<PaymentReport> = mutableListOf()) :
+    RecyclerView.Adapter<BranchPaymentReportAdapter.PaymentViewHolder>() {
 
     inner class PaymentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvPaymentId: TextView = itemView.findViewById(R.id.tvPaymentId)
@@ -19,11 +19,12 @@ class PaymentReportAdapter(private val paymentList: MutableList<PaymentReport> =
         val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
         val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
         val tvPaymentDate: TextView = itemView.findViewById(R.id.tvPaymentDate)
+        val tvCustomerMobile: TextView = itemView.findViewById(R.id.tvCustomerMobile) // Add if you have this view
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PaymentViewHolder {
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_payment_report, parent, false)
+            .inflate(R.layout.item_branch_payment_report, parent, false)
         return PaymentViewHolder(itemView)
     }
 
@@ -36,6 +37,10 @@ class PaymentReportAdapter(private val paymentList: MutableList<PaymentReport> =
         holder.tvAmount.text = "Amount: ₹${currentItem.Amount}"
         holder.tvStatus.text = "Status: ${currentItem.PaymentStatus}"
         holder.tvPaymentDate.text = "Date: ${currentItem.FormattedPaymentDate}"
+        holder.tvCustomerMobile.text = "CustomerMobile: ${currentItem.CustomerMobile}"
+
+        // If you have a mobile number field in your item layout
+        // holder.tvCustomerMobile.text = "Mobile: ${currentItem.CustomerMobile}"
 
         // Set status color
         when (currentItem.PaymentStatus.uppercase()) {
@@ -52,5 +57,20 @@ class PaymentReportAdapter(private val paymentList: MutableList<PaymentReport> =
         paymentList.clear()
         paymentList.addAll(newList)
         notifyDataSetChanged()
+    }
+
+    // Optional: Add more utility methods if needed
+    fun addPayment(payment: PaymentReport) {
+        paymentList.add(payment)
+        notifyItemInserted(paymentList.size - 1)
+    }
+
+    fun clearList() {
+        paymentList.clear()
+        notifyDataSetChanged()
+    }
+
+    fun getItem(position: Int): PaymentReport {
+        return paymentList[position]
     }
 }

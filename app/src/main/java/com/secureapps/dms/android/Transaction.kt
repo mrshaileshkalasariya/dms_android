@@ -1,4 +1,4 @@
-package com.secureapps.dms.android.model
+package com.secureapps.dms.android
 
 data class Transaction(
     val TransactionId: Int,

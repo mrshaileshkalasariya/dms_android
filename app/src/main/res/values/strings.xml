@@ -4,4 +4,11 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="payment">Payment</string>
     <string name="logout">Logout</string>
+    <string name="customer_payment">Customer Payment</string>
+    <string name="payment_mode_on">Payment Mode: ON</string>
+    <string name="make_payment">Make Payment</string>
+    <string name="please_enter_utr_and_amount">Please enter UTR and Amount</string>
+    <string name="payment_submitted">Payment submitted!</string>
+    <string name="failed_to_load_payment_reports">Failed to load payment reports</string>
+    <string name="error_message">Error: %s</string>
 </resources>

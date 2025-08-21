@@ -1,4 +1,4 @@
-package com.secureapps.dms.android.Model
+package com.secureapps.dms.android
 
 data class PaymentReportResponse(
     val status: Boolean,

@@ -197,7 +197,9 @@ class BranchReport : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_payment -> true.also { Log.w("BranchReport", "Payment clicked") }
+            R.id.action_payment -> true.also { Log.w("BranchReport", "Payment clicked")
+                startActivity(Intent(this@BranchReport, PaymentBranch::class.java))
+                true}
             R.id.action_logout -> true.also { showLogoutDialog() }
             else -> super.onOptionsItemSelected(item)
         }

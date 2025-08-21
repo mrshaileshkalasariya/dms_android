@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.secureapps.dms.android.R
-import com.secureapps.dms.android.model.Transaction
+import com.secureapps.dms.android.Transaction
 
 class TransactionAdapter(
     private var transactions: List<Transaction>,

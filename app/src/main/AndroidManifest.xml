@@ -18,12 +18,12 @@
         <activity
             android:name=".Activity.PaymentBranch"
             android:exported="false" />
-        <activity
-            android:name=".BranchPayment"
-            android:exported="false" />
-        <activity
-            android:name=".Activity.BranchPayment"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".BranchPayment"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".Activity.BranchPayment"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".Activity.CustomerPayment"
             android:exported="false" />
