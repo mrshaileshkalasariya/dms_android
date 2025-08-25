@@ -59,4 +59,5 @@ dependencies {
     annotationProcessor (libs.compiler)
     implementation (libs.kotlinx.coroutines.android.v171)
     implementation (libs.androidx.cardview)
+    implementation (libs.coil)
 }

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.secureapps.dms.android.PaymentReport
 import com.secureapps.dms.android.R
 
@@ -19,7 +20,9 @@ class BranchPaymentReportAdapter(private val paymentList: MutableList<PaymentRep
         val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
         val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
         val tvPaymentDate: TextView = itemView.findViewById(R.id.tvPaymentDate)
-        val tvCustomerMobile: TextView = itemView.findViewById(R.id.tvCustomerMobile) // Add if you have this view
+        val tvCustomerMobile: TextView = itemView.findViewById(R.id.tvCustomerMobile)
+        val btnApprove: MaterialButton = itemView.findViewById(R.id.btnApprove)
+        val btnReject: MaterialButton = itemView.findViewById(R.id.btnReject)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PaymentViewHolder {
@@ -39,15 +42,24 @@ class BranchPaymentReportAdapter(private val paymentList: MutableList<PaymentRep
         holder.tvPaymentDate.text = "Date: ${currentItem.FormattedPaymentDate}"
         holder.tvCustomerMobile.text = "CustomerMobile: ${currentItem.CustomerMobile}"
 
-        // If you have a mobile number field in your item layout
-        // holder.tvCustomerMobile.text = "Mobile: ${currentItem.CustomerMobile}"
-
         // Set status color
         when (currentItem.PaymentStatus.uppercase()) {
             "SUCCESS" -> holder.tvStatus.setTextColor(Color.parseColor("#4CAF50")) // Green
             "FAILED" -> holder.tvStatus.setTextColor(Color.parseColor("#F44336")) // Red
             "PENDING" -> holder.tvStatus.setTextColor(Color.parseColor("#FFC107")) // Amber
+            "APPROVED" -> holder.tvStatus.setTextColor(Color.parseColor("#4CAF50")) // Green
+            "REJECTED" -> holder.tvStatus.setTextColor(Color.parseColor("#F44336")) // Red
+            "APPROVAL PENDING" -> holder.tvStatus.setTextColor(Color.parseColor("#FFC107")) // Amber
             else -> holder.tvStatus.setTextColor(Color.parseColor("#2196F3")) // Blue
+        }
+
+        // Show buttons only for APPROVAL PENDING status, hide for others
+        if (currentItem.PaymentStatus.equals("APPROVAL PENDING", ignoreCase = true)) {
+            holder.btnApprove.visibility = View.VISIBLE
+            holder.btnReject.visibility = View.VISIBLE
+        } else {
+            holder.btnApprove.visibility = View.GONE
+            holder.btnReject.visibility = View.GONE
         }
     }
 
@@ -59,7 +71,6 @@ class BranchPaymentReportAdapter(private val paymentList: MutableList<PaymentRep
         notifyDataSetChanged()
     }
 
-    // Optional: Add more utility methods if needed
     fun addPayment(payment: PaymentReport) {
         paymentList.add(payment)
         notifyItemInserted(paymentList.size - 1)
