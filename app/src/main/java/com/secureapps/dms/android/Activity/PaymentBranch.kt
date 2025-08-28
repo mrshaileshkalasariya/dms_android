@@ -2,18 +2,15 @@ package com.secureapps.dms.android.Activity
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.secureapps.dms.android.Adapter.BranchPaymentReportAdapter
+import com.secureapps.dms.android.ApiInterface.UpdatePaymentRequest
 import com.secureapps.dms.android.R
 import com.secureapps.dms.android.Retrofit.RetrofitClient
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +28,7 @@ class PaymentBranch : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_payment_branch)
 
-        // Set the Toolbar as the ActionBar
+        // Toolbar setup
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.apply {
             title = "Branch Payment"
@@ -47,14 +44,15 @@ class PaymentBranch : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
 
-        // Setup RecyclerView
+        // Setup RecyclerView with click listener for payment updates
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = BranchPaymentReportAdapter()
+        adapter = BranchPaymentReportAdapter { paymentId, action ->
+            updatePaymentStatus(paymentId, action)
+        }
         recyclerView.adapter = adapter
 
         // Load payment reports
         loadPaymentReports()
-
     }
 
     private fun loadPaymentReports() {
@@ -72,6 +70,47 @@ class PaymentBranch : AppCompatActivity() {
                         Toast.makeText(
                             this@PaymentBranch,
                             "Failed to load payment reports",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(
+                        this@PaymentBranch,
+                        "Error: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    // ✅ NEW: Call API to update payment status
+    private fun updatePaymentStatus(paymentId: Int, action: Int) {
+        progressBar.visibility = View.VISIBLE
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val request = UpdatePaymentRequest(paymentId, action)
+                val response = RetrofitClient.instance.updatePayment(request)
+
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                    if (response.isSuccessful && response.body()?.status == true) {
+                        Toast.makeText(
+                            this@PaymentBranch,
+                            response.body()?.message ?: "Payment updated",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        // Reload list after update
+                        loadPaymentReports()
+                    } else {
+                        Toast.makeText(
+                            this@PaymentBranch,
+                            response.body()?.message ?: "Update failed",
                             Toast.LENGTH_SHORT
                         ).show()
                     }

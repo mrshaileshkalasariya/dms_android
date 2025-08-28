@@ -16,8 +16,9 @@ interface ApiService {
     @POST("api/get_payment_report.php")
     suspend fun getPaymentReports(): Response<PaymentReportResponse>
 
-//    @POST("api/get_customer_details.php")
-//    suspend fun getCustomerDetails(): Response<LoginResponse>
+    // ✅ New API for updating payment status
+    @POST("api/update_payment.php")
+    suspend fun updatePayment(@Body request: UpdatePaymentRequest): Response<UpdatePaymentResponse>
 }
 
 data class LoginRequest(
@@ -48,4 +49,15 @@ data class User(
     val LimitAmount: Int?,
     val LimitNotifyAmount: Int?,
     val PaymentQrImage: String?
+)
+
+// ------------------ ✅ New Models for update_payment ------------------ //
+data class UpdatePaymentRequest(
+    val paymentId: Int,
+    val action: Int
+)
+
+data class UpdatePaymentResponse(
+    val status: Boolean,
+    val message: String
 )

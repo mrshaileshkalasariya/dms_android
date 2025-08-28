@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.secureapps.dms.android.ApiInterface.ApiService
 import com.secureapps.dms.android.Retrofit.RetrofitClient
 import com.secureapps.dms.android.ApiInterface.LoginRequest
@@ -23,6 +24,11 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        // Force light mode
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
+        // Optional: Remove any window background that might change with theme
+        getWindow().setBackgroundDrawableResource(android.R.color.white);
 
         // Initialize Retrofit service
         apiService = RetrofitClient.instance
@@ -91,6 +97,11 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // ✅ Add log here
+            Log.d("LoginInput", "Mobile Entered: $mobile")
+            Log.d("LoginInput", "Password Entered: $password")
+            Log.d("LoginInput", "UserType: ${userTypes[selectedTypePosition]}")
+
             // Get the actual selected type as string
             val selectedType = userTypes[selectedTypePosition]
 
@@ -120,7 +131,11 @@ class LoginActivity : AppCompatActivity() {
                                     else -> Intent(this@LoginActivity, MainActivity::class.java) // default
                                 }
 
-                                // Start the appropriate activity
+                                // Example: if going to CustomerPayment activity
+//                                val intent = Intent(this@LoginActivity, CustomerPayment::class.java)
+                                intent.putExtra("MOBILE", mobile)
+                                intent.putExtra("PASSWORD", password)
+                                intent.putExtra("USERTYPE", selectedTypePosition)
                                 startActivity(intent)
                                 finish()
                             }

@@ -79,7 +79,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="#3c8dbc"
-        android:text="Filter Report"
+        android:text="Submit"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"

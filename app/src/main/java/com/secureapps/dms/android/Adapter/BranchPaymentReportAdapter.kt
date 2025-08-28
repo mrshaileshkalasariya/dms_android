@@ -9,9 +9,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.secureapps.dms.android.PaymentReport
 import com.secureapps.dms.android.R
+import androidx.appcompat.app.AlertDialog
 
-class BranchPaymentReportAdapter(private val paymentList: MutableList<PaymentReport> = mutableListOf()) :
-    RecyclerView.Adapter<BranchPaymentReportAdapter.PaymentViewHolder>() {
+
+class BranchPaymentReportAdapter(
+    private val paymentList: MutableList<PaymentReport> = mutableListOf(),
+    private val onActionClick: (paymentId: Int, action: Int) -> Unit
+) : RecyclerView.Adapter<BranchPaymentReportAdapter.PaymentViewHolder>() {
 
     inner class PaymentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvPaymentId: TextView = itemView.findViewById(R.id.tvPaymentId)
@@ -44,22 +48,53 @@ class BranchPaymentReportAdapter(private val paymentList: MutableList<PaymentRep
 
         // Set status color
         when (currentItem.PaymentStatus.uppercase()) {
-            "SUCCESS" -> holder.tvStatus.setTextColor(Color.parseColor("#4CAF50")) // Green
-            "FAILED" -> holder.tvStatus.setTextColor(Color.parseColor("#F44336")) // Red
-            "PENDING" -> holder.tvStatus.setTextColor(Color.parseColor("#FFC107")) // Amber
-            "APPROVED" -> holder.tvStatus.setTextColor(Color.parseColor("#4CAF50")) // Green
-            "REJECTED" -> holder.tvStatus.setTextColor(Color.parseColor("#F44336")) // Red
-            "APPROVAL PENDING" -> holder.tvStatus.setTextColor(Color.parseColor("#FFC107")) // Amber
-            else -> holder.tvStatus.setTextColor(Color.parseColor("#2196F3")) // Blue
+            "SUCCESS" -> holder.tvStatus.setTextColor(Color.parseColor("#4CAF50"))
+            "FAILED" -> holder.tvStatus.setTextColor(Color.parseColor("#F44336"))
+            "PENDING" -> holder.tvStatus.setTextColor(Color.parseColor("#FFC107"))
+            "APPROVED" -> holder.tvStatus.setTextColor(Color.parseColor("#4CAF50"))
+            "REJECTED" -> holder.tvStatus.setTextColor(Color.parseColor("#F44336"))
+            "APPROVAL PENDING" -> holder.tvStatus.setTextColor(Color.parseColor("#FFC107"))
+            else -> holder.tvStatus.setTextColor(Color.parseColor("#2196F3"))
         }
 
-        // Show buttons only for APPROVAL PENDING status, hide for others
+        // Show buttons only for APPROVAL PENDING status
         if (currentItem.PaymentStatus.equals("APPROVAL PENDING", ignoreCase = true)) {
             holder.btnApprove.visibility = View.VISIBLE
             holder.btnReject.visibility = View.VISIBLE
         } else {
             holder.btnApprove.visibility = View.GONE
             holder.btnReject.visibility = View.GONE
+        }
+
+//        // ✅ Button Clicks -> Send action
+//        holder.btnApprove.setOnClickListener {
+//            onActionClick(currentItem.PaymentId, 1) // Approve
+//        }
+//        holder.btnReject.setOnClickListener {
+//            onActionClick(currentItem.PaymentId, 0) // Reject
+//        }
+        // ✅ Approve button
+        holder.btnApprove.setOnClickListener {
+            AlertDialog.Builder(holder.itemView.context)
+                .setTitle("Confirm Approval")
+                .setMessage("Are you sure you want to approve this payment?")
+                .setPositiveButton("Yes") { _, _ ->
+                    onActionClick(currentItem.PaymentId, 1) // Approve
+                }
+                .setNegativeButton("No", null) // dismiss
+                .show()
+        }
+
+// ❌ Reject button
+        holder.btnReject.setOnClickListener {
+            AlertDialog.Builder(holder.itemView.context)
+                .setTitle("Confirm Rejection")
+                .setMessage("Are you sure you want to reject this payment?")
+                .setPositiveButton("Yes") { _, _ ->
+                    onActionClick(currentItem.PaymentId, 0) // Reject
+                }
+                .setNegativeButton("No", null) // dismiss
+                .show()
         }
     }
 
@@ -69,19 +104,5 @@ class BranchPaymentReportAdapter(private val paymentList: MutableList<PaymentRep
         paymentList.clear()
         paymentList.addAll(newList)
         notifyDataSetChanged()
-    }
-
-    fun addPayment(payment: PaymentReport) {
-        paymentList.add(payment)
-        notifyItemInserted(paymentList.size - 1)
-    }
-
-    fun clearList() {
-        paymentList.clear()
-        notifyDataSetChanged()
-    }
-
-    fun getItem(position: Int): PaymentReport {
-        return paymentList[position]
     }
 }
