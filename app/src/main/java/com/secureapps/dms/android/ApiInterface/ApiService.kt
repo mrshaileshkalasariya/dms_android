@@ -19,6 +19,14 @@ interface ApiService {
     // ✅ New API for updating payment status
     @POST("api/update_payment.php")
     suspend fun updatePayment(@Body request: UpdatePaymentRequest): Response<UpdatePaymentResponse>
+
+    // ✅ New API for fetching customers
+    @POST("api/get_customers.php")
+    suspend fun getCustomers(@Body request: BranchRequest): Response<CustomerResponse>
+
+    // ✅ New API for creating payment
+    @POST("api/set_payment.php")
+    suspend fun setPayment(@Body request: PaymentRequest): Response<PaymentResponse>
 }
 
 data class LoginRequest(
@@ -60,4 +68,35 @@ data class UpdatePaymentRequest(
 data class UpdatePaymentResponse(
     val status: Boolean,
     val message: String
+)
+
+// ------------------ ✅ New Models for Customers ------------------ //
+data class BranchRequest(
+    val branchId: Int
+)
+
+data class CustomerResponse(
+    val status: Boolean,
+    val data: List<Customer>?
+)
+
+data class Customer(
+    val CustomerId: Int,
+    val BranchId: Int,
+    val FirstName: String,
+    val LastName: String,
+    val Mobile: String
+)
+
+// ------------------ ✅ New Models for set_payment ------------------ //
+data class PaymentRequest(
+    val customerId: Int,
+    val utrNumber: String,
+    val amount: Int
+)
+
+data class PaymentResponse(
+    val status: Boolean,
+    val message: String,
+    val paymentId: Int?
 )

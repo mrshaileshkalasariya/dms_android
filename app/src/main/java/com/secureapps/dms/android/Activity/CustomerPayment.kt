@@ -3,6 +3,7 @@ package com.secureapps.dms.android.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -12,13 +13,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.secureapps.dms.android.R
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.secureapps.dms.android.Adapter.PaymentReportAdapter
-import com.secureapps.dms.android.Retrofit.RetrofitClient
 import com.bumptech.glide.Glide
-import com.secureapps.dms.android.ApiInterface.ApiService
+import com.secureapps.dms.android.Adapter.PaymentReportAdapter
+import com.secureapps.dms.android.ApiInterface.PaymentRequest
+import com.secureapps.dms.android.R
+import com.secureapps.dms.android.Retrofit.RetrofitClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ class CustomerPayment : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_customer_payment)
 
-        // Set the Toolbar as the ActionBar
+        // Toolbar
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.apply {
             title = "Customer Payment"
@@ -57,15 +58,15 @@ class CustomerPayment : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
 
-        // Setup RecyclerView
+        // RecyclerView setup
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = PaymentReportAdapter()
         recyclerView.adapter = adapter
 
-        // Load payment reports
+        // Load payment reports initially
         loadPaymentReports()
 
-        // Set switch listener
+        // Switch listener
         paymentModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 qrCodeImage.visibility = ImageView.VISIBLE
@@ -74,9 +75,8 @@ class CustomerPayment : AppCompatActivity() {
                 submitButton.visibility = Button.VISIBLE
                 paymentModeSwitch.text = "Payment Mode: ON"
 
-                // ✅ Load QR Code when switch is ON
+                // Load QR
                 loadQrImage()
-
             } else {
                 qrCodeImage.visibility = ImageView.GONE
                 utrEditText.visibility = EditText.GONE
@@ -86,31 +86,82 @@ class CustomerPayment : AppCompatActivity() {
             }
         }
 
+        // Submit Button click -> Call API
         submitButton.setOnClickListener {
-            val utr = utrEditText.text.toString()
-            val amount = amountEditText.text.toString()
+            val utr = utrEditText.text.toString().trim()
+            val amount = amountEditText.text.toString().trim()
+
+            // ✅ Hide system keyboard
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            currentFocus?.let { view ->
+                imm.hideSoftInputFromWindow(view.windowToken, 0)
+            }
 
             if (utr.isEmpty() || amount.isEmpty()) {
                 Toast.makeText(this, "Please enter UTR and Amount", Toast.LENGTH_LONG).show()
             } else {
-                Toast.makeText(this, "Payment submitted!", Toast.LENGTH_LONG).show()
-                loadPaymentReports()
+                submitPayment(utr, amount.toInt())
+            }
+        }
+    }
+
+    private fun submitPayment(utr: String, amount: Int) {
+        progressBar.visibility = View.VISIBLE
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val request = PaymentRequest(
+                    customerId = 1,  // TODO: Pass correct logged-in customerId
+                    utrNumber = utr,
+                    amount = amount
+                )
+
+                val response = RetrofitClient.instance.setPayment(request)
+
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                    if (response.isSuccessful && response.body()?.status == true) {
+                        Toast.makeText(
+                            this@CustomerPayment,
+                            response.body()?.message ?: "Payment submitted!",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        // ✅ Clear form inputs
+                        findViewById<EditText>(R.id.utrEditText).text.clear()
+                        findViewById<EditText>(R.id.amountEditText).text.clear()
+
+                        // ✅ Hide form
+                        qrCodeImage.visibility = View.GONE
+                        findViewById<EditText>(R.id.utrEditText).visibility = View.GONE
+                        findViewById<EditText>(R.id.amountEditText).visibility = View.GONE
+                        findViewById<Button>(R.id.submitButton).visibility = View.GONE
+
+                        // ✅ Reset switch
+                        val paymentModeSwitch = findViewById<SwitchCompat>(R.id.paymentModeSwitch)
+                        paymentModeSwitch.isChecked = false
+                        paymentModeSwitch.text = "Make Payment"
+
+                        // Refresh list
+                        loadPaymentReports()
+                    } else {
+                        Toast.makeText(
+                            this@CustomerPayment,
+                            "Failed: ${response.body()?.message ?: "Unknown error"}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@CustomerPayment, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
 
     private fun loadQrImage() {
-// Get data using getExtra()
-        val mobile = intent.getStringExtra("MOBILE")
-        val password = intent.getStringExtra("PASSWORD")
-//        val userTypePosition = intent.getIntExtra("USERTYPE_POSITION", 0)
-        val userTypeName = intent.getStringExtra("USERTYPE")
-
-        // Use the data
-        Log.d("CustomerPayment", "Mobile: $mobile")
-        Log.d("CustomerPayment", "Password: $password")
-//        Log.d("CustomerPayment", "User Type Position: $userTypePosition")
-        Log.d("CustomerPayment", "User Type Name: $userTypeName")
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = RetrofitClient.instance.login(
@@ -124,13 +175,11 @@ class CustomerPayment : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful && response.body()?.status == true) {
                         val user = response.body()?.data?.user
-//                        val qrUrl = user?.PaymentQrImage?.replace("localhost", "10.227.14.202") // or BaseIP
-                        val qrUrl = user?.PaymentQrImage?.replace("localhost", RetrofitClient.BaseIP) // or BaseIP
+                        val qrUrl = user?.PaymentQrImage?.replace("localhost", RetrofitClient.BaseIP)
 
                         if (!qrUrl.isNullOrEmpty()) {
                             Glide.with(this@CustomerPayment)
                                 .load(qrUrl)
-//                                .placeholder(R.drawable.arrow)
                                 .error(R.drawable.dms_logo)
                                 .into(qrCodeImage)
                         }

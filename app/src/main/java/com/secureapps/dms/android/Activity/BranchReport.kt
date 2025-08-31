@@ -27,6 +27,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.secureapps.dms.android.ApiInterface.ApiService
+import com.secureapps.dms.android.ApiInterface.BranchRequest
+import com.secureapps.dms.android.ApiInterface.CustomerResponse
 import com.secureapps.dms.android.Retrofit.RetrofitClient
 import com.secureapps.dms.android.Adapter.TransactionAdapter
 import com.secureapps.dms.android.R
@@ -50,23 +52,26 @@ class BranchReport : AppCompatActivity() {
     private var customerList = mutableListOf<String>()
     private var totalRecords = 0
 
-    private var isFirstTime = true // 🔹 Added flag
+    private var isFirstTime = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_branch_report)
-        // Force light mode
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        window.setBackgroundDrawableResource(android.R.color.white)
 
-        // Optional: Remove any window background that might change with theme
-        getWindow().setBackgroundDrawableResource(android.R.color.white);
         apiService = RetrofitClient.instance
         initViews()
         setupMonthSpinner()
         setupCustomerSpinner()
         setupRecyclerView()
         setupListeners()
+
+        // ✅ Fetch customers for spinner
+        fetchCustomers(branchId = 1)
+
+        // ✅ Fetch transactions
         fetchTransactions()
     }
 
@@ -79,18 +84,18 @@ class BranchReport : AppCompatActivity() {
             isFirstTime = false
         }
     }
+
     private fun initViews() {
         monthSpinner = findViewById(R.id.monthSpinner)
         customerSpinner = findViewById(R.id.customerSpinner)
         filterButton = findViewById(R.id.filterButton)
         recyclerView = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
-        noRecordsText = findViewById(R.id.noRecordsText) // 🔹 Add this TextView in layout
+        noRecordsText = findViewById(R.id.noRecordsText)
 
         findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar).apply {
             setSupportActionBar(this)
             supportActionBar?.title = "Branch Report"
-
             val homeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.home, null)
             supportActionBar?.setHomeAsUpIndicator(homeDrawable)
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -147,6 +152,36 @@ class BranchReport : AppCompatActivity() {
         }
     }
 
+    // ✅ Fetch Customers for Spinner
+    private fun fetchCustomers(branchId: Int) {
+        showLoading(true)
+        lifecycleScope.launch {
+            try {
+                val response = apiService.getCustomers(BranchRequest(branchId))
+                if (response.isSuccessful) {
+                    val customerResponse: CustomerResponse? = response.body()
+                    if (customerResponse != null && customerResponse.data != null) {
+                        val customerNames = customerResponse.data.map {
+                            "${it.FirstName} ${it.LastName} (${it.Mobile})"
+                        }
+                        updateCustomerSpinner(customerNames)
+                    }
+                } else {
+                    Toast.makeText(
+                        this@BranchReport,
+                        "Failed to load customers: ${response.message()}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e("BranchReport", "Error fetching customers", e)
+            } finally {
+                showLoading(false)
+            }
+        }
+    }
+
+    // Existing Transactions fetch
     private fun fetchTransactions() {
         showLoading(true)
         lifecycleScope.launch {
@@ -157,35 +192,24 @@ class BranchReport : AppCompatActivity() {
                     if (reportResponse != null) {
                         totalRecords = reportResponse.total
 
-                        val customerNames = reportResponse.data
-                            .map { transaction ->
-                                "${transaction.CustomerFirstName} ${transaction.CustomerLastName} (${transaction.CustomerMobile})"
-                            }
-                            .distinct()
-                            .sorted()
-
-                        updateCustomerSpinner(customerNames)
-
-                        val selectedCustomer = customerSpinner.selectedItem.toString()
+                        val selectedCustomer = customerSpinner.selectedItem?.toString() ?: "All Customers"
                         var filteredData = if (selectedCustomer == "All Customers") {
                             reportResponse.data
                         } else {
-                            reportResponse.data.filter {
+                            reportResponse.data?.filter {
                                 "${it.CustomerFirstName} ${it.CustomerLastName} (${it.CustomerMobile})" == selectedCustomer
                             }
                         }
 
-                        // 🔹 Apply Month-Year filter
-                        filteredData = filterByMonth(filteredData, selectedMonth)
+                        filteredData = filteredData?.let { filterByMonth(it, selectedMonth) }
 
-                        if (filteredData.isNotEmpty()) {
+                        if (!filteredData.isNullOrEmpty()) {
                             recyclerView.visibility = View.VISIBLE
                             noRecordsText.visibility = View.GONE
                             transactionAdapter.updateData(filteredData, totalRecords)
                         } else {
                             recyclerView.visibility = View.GONE
                             noRecordsText.visibility = View.VISIBLE
-//                            noRecordsText.text = "No Records Found for $selectedMonth"
                             noRecordsText.text = "No transactions found."
                             transactionAdapter.updateData(emptyList(), 0)
                         }
@@ -241,7 +265,7 @@ class BranchReport : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         for (i in 0 until menu?.size()!!) {
-            val menuItem = menu?.getItem(i)
+            val menuItem = menu.getItem(i)
             val spanString = SpannableString(menuItem?.title.toString())
             spanString.setSpan(ForegroundColorSpan(Color.BLACK), 0, spanString.length, 0)
             menuItem?.title = spanString

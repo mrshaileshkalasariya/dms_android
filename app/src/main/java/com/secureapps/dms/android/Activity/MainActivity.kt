@@ -122,49 +122,98 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchTransactions() {
-        showLoading(true)
-        lifecycleScope.launch {
-            try {
-                val response = apiService.getReports()
-                if (response.isSuccessful) {
-                    val reportResponse = response.body()
-                    if (reportResponse != null) {
-                        totalRecords = reportResponse.total
+//    private fun fetchTransactions() {
+//        showLoading(true)
+//        lifecycleScope.launch {
+//            try {
+//                val response = apiService.getReports()
+//                if (response.isSuccessful) {
+//                    val reportResponse = response.body()
+//                    if (reportResponse != null) {
+//                        totalRecords = reportResponse.total
+//
+//                        if (reportResponse.data.isNotEmpty()) {
+//                            // 🔹 Filter by month/year
+//                            val filteredData = filterByMonth(reportResponse.data, selectedMonth)
+//
+//                            if (filteredData.isNotEmpty()) {
+//                                recyclerView.visibility = View.VISIBLE
+//                                noRecordsText.visibility = View.GONE
+////                                transactionAdapter.updateData(filteredData, filteredData.size)
+//                                transactionAdapter.updateData(filteredData, totalRecords)
+//                            } else {
+//                                recyclerView.visibility = View.GONE
+//                                noRecordsText.visibility = View.VISIBLE
+//                            }
+//                        } else {
+//                            recyclerView.visibility = View.GONE
+//                            noRecordsText.visibility = View.VISIBLE
+//                        }
+//                    }
+//                } else {
+//                    Toast.makeText(
+//                        this@MainActivity,
+//                        "Failed to load data: ${response.message()}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                }
+//            } catch (e: Exception) {
+//                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+//                Log.e("MainActivity", "Error fetching data", e)
+//            } finally {
+//                showLoading(false)
+//            }
+//        }
+//    }
+private fun fetchTransactions() {
+    showLoading(true)
+    lifecycleScope.launch {
+        try {
+            val response = apiService.getReports()
+            if (response.isSuccessful) {
+                val reportResponse = response.body()
+                if (reportResponse != null) {
+                    totalRecords = reportResponse.total
 
-                        if (reportResponse.data.isNotEmpty()) {
-                            // 🔹 Filter by month/year
-                            val filteredData = filterByMonth(reportResponse.data, selectedMonth)
+                    // ✅ Use safe call with default emptyList()
+                    val transactions = reportResponse.data ?: emptyList()
 
-                            if (filteredData.isNotEmpty()) {
-                                recyclerView.visibility = View.VISIBLE
-                                noRecordsText.visibility = View.GONE
-//                                transactionAdapter.updateData(filteredData, filteredData.size)
-                                transactionAdapter.updateData(filteredData, totalRecords)
-                            } else {
-                                recyclerView.visibility = View.GONE
-                                noRecordsText.visibility = View.VISIBLE
-                            }
+                    if (transactions.isNotEmpty()) {
+                        // 🔹 Filter by month/year
+                        val filteredData = filterByMonth(transactions, selectedMonth)
+
+                        if (filteredData.isNotEmpty()) {
+                            recyclerView.visibility = View.VISIBLE
+                            noRecordsText.visibility = View.GONE
+                            transactionAdapter.updateData(filteredData, totalRecords)
                         } else {
                             recyclerView.visibility = View.GONE
                             noRecordsText.visibility = View.VISIBLE
                         }
+                    } else {
+                        recyclerView.visibility = View.GONE
+                        noRecordsText.visibility = View.VISIBLE
                     }
                 } else {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Failed to load data: ${response.message()}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    recyclerView.visibility = View.GONE
+                    noRecordsText.visibility = View.VISIBLE
                 }
-            } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-                Log.e("MainActivity", "Error fetching data", e)
-            } finally {
-                showLoading(false)
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Failed to load data: ${response.message()}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
+        } catch (e: Exception) {
+            Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            Log.e("MainActivity", "Error fetching data", e)
+        } finally {
+            showLoading(false)
         }
     }
+}
+
 
     private fun filterByMonth(transactions: List<Transaction>, selectedMonth: String): List<Transaction> {
         val apiDateFormat = SimpleDateFormat("dd-MM-yyyy hh:mm:ss a", Locale.getDefault()) // API date
