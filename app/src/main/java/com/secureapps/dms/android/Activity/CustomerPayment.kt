@@ -91,20 +91,26 @@ class CustomerPayment : AppCompatActivity() {
             val amount = amountEditText.text.toString()
 
             if (utr.isEmpty() || amount.isEmpty()) {
-                Toast.makeText(this, "Please enter UTR and Amount", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter UTR and Amount", Toast.LENGTH_LONG).show()
             } else {
-                Toast.makeText(this, "Payment submitted!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Payment submitted!", Toast.LENGTH_LONG).show()
                 loadPaymentReports()
             }
         }
     }
 
     private fun loadQrImage() {
-//        val mobile = intent.getStringExtra("MOBILE") ?: ""
-//        val password = intent.getStringExtra("PASSWORD") ?: ""
-//        val usertype = intent.getIntExtra("USERTYPE", 0)
-//
-//        Log.e("NextActivity", "Mobile: $mobile, Password: $password, UserType: $usertype")
+// Get data using getExtra()
+        val mobile = intent.getStringExtra("MOBILE")
+        val password = intent.getStringExtra("PASSWORD")
+//        val userTypePosition = intent.getIntExtra("USERTYPE_POSITION", 0)
+        val userTypeName = intent.getStringExtra("USERTYPE")
+
+        // Use the data
+        Log.d("CustomerPayment", "Mobile: $mobile")
+        Log.d("CustomerPayment", "Password: $password")
+//        Log.d("CustomerPayment", "User Type Position: $userTypePosition")
+        Log.d("CustomerPayment", "User Type Name: $userTypeName")
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = RetrofitClient.instance.login(
@@ -132,7 +138,7 @@ class CustomerPayment : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@CustomerPayment, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CustomerPayment, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -153,7 +159,7 @@ class CustomerPayment : AppCompatActivity() {
                         Toast.makeText(
                             this@CustomerPayment,
                             "Failed to load payment reports",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -163,7 +169,7 @@ class CustomerPayment : AppCompatActivity() {
                     Toast.makeText(
                         this@CustomerPayment,
                         "Error: ${e.message}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }

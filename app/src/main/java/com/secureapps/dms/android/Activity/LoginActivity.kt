@@ -93,7 +93,7 @@ class LoginActivity : AppCompatActivity() {
             val selectedTypePosition = dropdownSpinner.selectedItemPosition
 
             if (mobile.isEmpty() || password.isEmpty() || selectedTypePosition == 0) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
@@ -122,7 +122,7 @@ class LoginActivity : AppCompatActivity() {
                             val loginResponse = response.body()
                             if (loginResponse?.status == true) {
                                 // Login successful
-                                Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_LONG).show()
 
                                 // Determine which activity to launch based on user type
                                 val intent = when (selectedType) {
@@ -137,18 +137,19 @@ class LoginActivity : AppCompatActivity() {
                                 intent.putExtra("PASSWORD", password)
                                 intent.putExtra("USERTYPE", selectedTypePosition)
                                 startActivity(intent)
+                                Log.w("get user data", "API call failed $mobile\n $password $selectedTypePosition")
                                 finish()
                             }
                             else {
                                 // Login failed
-                                Toast.makeText(this@LoginActivity, "Invalid credentials!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@LoginActivity, "Invalid credentials!", Toast.LENGTH_LONG).show()
                             }
                         } else {
                             // API call failed
                             Toast.makeText(
                                 this@LoginActivity,
                                 "Login failed: ${response.message()}",
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_LONG
                             ).show()
                         }
                     }
@@ -157,7 +158,7 @@ class LoginActivity : AppCompatActivity() {
                         Toast.makeText(
                             this@LoginActivity,
                             "Error: ${e.localizedMessage}",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                         Log.e("LoginError", "API call failed", e)
                     }

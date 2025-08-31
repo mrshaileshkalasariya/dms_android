@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -46,6 +47,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+        // Force light mode
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
+        // Optional: Remove any window background that might change with theme
+        getWindow().setBackgroundDrawableResource(android.R.color.white);
 
         apiService = RetrofitClient.instance
         initViews()
@@ -133,7 +139,8 @@ class MainActivity : AppCompatActivity() {
                             if (filteredData.isNotEmpty()) {
                                 recyclerView.visibility = View.VISIBLE
                                 noRecordsText.visibility = View.GONE
-                                transactionAdapter.updateData(filteredData, filteredData.size)
+//                                transactionAdapter.updateData(filteredData, filteredData.size)
+                                transactionAdapter.updateData(filteredData, totalRecords)
                             } else {
                                 recyclerView.visibility = View.GONE
                                 noRecordsText.visibility = View.VISIBLE
@@ -147,11 +154,11 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(
                         this@MainActivity,
                         "Failed to load data: ${response.message()}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 Log.e("MainActivity", "Error fetching data", e)
             } finally {
                 showLoading(false)
@@ -206,7 +213,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                Toast.makeText(this, "Page Reloaded", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Page Reloaded", Toast.LENGTH_LONG).show()
                 restartActivity()
                 true
             }

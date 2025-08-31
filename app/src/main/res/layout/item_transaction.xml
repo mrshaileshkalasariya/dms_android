@@ -17,8 +17,8 @@
             android:id="@+id/transactionId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
             android:text="TransactionId"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
@@ -41,37 +41,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Customer name"
-            android:visibility="visible"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:visibility="visible" />
 
         <TextView
             android:id="@+id/mobile_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Mobile"
-            android:visibility="visible"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:padding="10dp"
             android:background="@drawable/spinner_border"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/amount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="amount"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+            android:orientation="horizontal"
+            android:padding="10dp">
 
             <TextView
                 android:id="@+id/transactionDate"
@@ -79,6 +66,21 @@
                 android:layout_height="wrap_content"
                 android:text="transactionDate"
                 android:textSize="14sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

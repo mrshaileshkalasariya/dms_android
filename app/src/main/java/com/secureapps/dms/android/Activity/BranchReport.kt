@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -49,10 +50,17 @@ class BranchReport : AppCompatActivity() {
     private var customerList = mutableListOf<String>()
     private var totalRecords = 0
 
+    private var isFirstTime = true // 🔹 Added flag
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_branch_report)
+        // Force light mode
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
+        // Optional: Remove any window background that might change with theme
+        getWindow().setBackgroundDrawableResource(android.R.color.white);
         apiService = RetrofitClient.instance
         initViews()
         setupMonthSpinner()
@@ -62,6 +70,15 @@ class BranchReport : AppCompatActivity() {
         fetchTransactions()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (isFirstTime) {
+            filterButton.post {
+                filterButton.performClick()
+            }
+            isFirstTime = false
+        }
+    }
     private fun initViews() {
         monthSpinner = findViewById(R.id.monthSpinner)
         customerSpinner = findViewById(R.id.customerSpinner)
@@ -169,7 +186,7 @@ class BranchReport : AppCompatActivity() {
                             recyclerView.visibility = View.GONE
                             noRecordsText.visibility = View.VISIBLE
 //                            noRecordsText.text = "No Records Found for $selectedMonth"
-                            noRecordsText.text = "No records found"
+                            noRecordsText.text = "No transactions found."
                             transactionAdapter.updateData(emptyList(), 0)
                         }
                     }
@@ -177,7 +194,7 @@ class BranchReport : AppCompatActivity() {
                     Toast.makeText(
                         this@BranchReport,
                         "Failed to load data: ${response.message()}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             } catch (e: Exception) {
@@ -235,7 +252,7 @@ class BranchReport : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                Toast.makeText(this, "Page Reloaded", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Page Reloaded", Toast.LENGTH_LONG).show()
                 restartActivity()
                 true
             }

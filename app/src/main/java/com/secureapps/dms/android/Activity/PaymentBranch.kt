@@ -70,7 +70,7 @@ class PaymentBranch : AppCompatActivity() {
                         Toast.makeText(
                             this@PaymentBranch,
                             "Failed to load payment reports",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -80,7 +80,7 @@ class PaymentBranch : AppCompatActivity() {
                     Toast.makeText(
                         this@PaymentBranch,
                         "Error: ${e.message}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -102,7 +102,7 @@ class PaymentBranch : AppCompatActivity() {
                         Toast.makeText(
                             this@PaymentBranch,
                             response.body()?.message ?: "Payment updated",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
 
                         // Reload list after update
@@ -111,7 +111,7 @@ class PaymentBranch : AppCompatActivity() {
                         Toast.makeText(
                             this@PaymentBranch,
                             response.body()?.message ?: "Update failed",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -121,7 +121,7 @@ class PaymentBranch : AppCompatActivity() {
                     Toast.makeText(
                         this@PaymentBranch,
                         "Error: ${e.message}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }

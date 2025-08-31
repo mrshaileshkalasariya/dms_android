@@ -30,10 +30,10 @@ class PaymentReportAdapter(private val paymentList: MutableList<PaymentReport> =
     override fun onBindViewHolder(holder: PaymentViewHolder, position: Int) {
         val currentItem = paymentList[position]
 
-        holder.tvPaymentId.text = "Payment ID: ${currentItem.PaymentId}"
+        holder.tvPaymentId.text = "Payment Id: ${currentItem.PaymentId}"
         holder.tvCustomerName.text = "Customer: ${currentItem.CustomerFirstName} ${currentItem.CustomerLastName}"
         holder.tvUtrNumber.text = "UTR: ${currentItem.UTRnumber}"
-        holder.tvAmount.text = "Amount: ₹${currentItem.Amount}"
+        holder.tvAmount.text = "Amount: ${currentItem.Amount}"
         holder.tvStatus.text = "Status: ${currentItem.PaymentStatus}"
         holder.tvPaymentDate.text = "Date: ${currentItem.FormattedPaymentDate}"
 

@@ -69,13 +69,13 @@ class TransactionAdapter(
         when (holder) {
             is TransactionViewHolder -> {
                 val transaction = transactions[position]
-                holder.transactionId.text = "TransactionId : ${transaction.TransactionId}"
+                holder.transactionId.text = "Transaction Id : ${transaction.TransactionId}"
 
                 val notesPart = if (transaction.Notes.isNotBlank()) " (${transaction.Notes})" else ""
                 holder.product.text = "Product : ${transaction.Product}$notesPart"
 
                 holder.quantity.text = "Quantity : ${transaction.Quantity}"
-                holder.amount.text = "Amount : ₹${"%.2f".format(transaction.Amount)}"
+                holder.amount.text = "${"%.2f".format(transaction.Amount)}"
                 holder.date.text = transaction.FormattedTransactionDate
 
                 if (showCustomerInfo) {
@@ -90,7 +90,7 @@ class TransactionAdapter(
                 }
             }
             is FooterViewHolder -> {
-                holder.totalRecords.text = "Total Records: $totalRecords"
+                holder.totalRecords.text = "Total: $totalRecords"
 
                 // Set current date in the footer
                 val currentDate = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date())

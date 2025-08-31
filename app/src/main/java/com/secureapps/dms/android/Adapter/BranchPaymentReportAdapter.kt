@@ -39,12 +39,12 @@ class BranchPaymentReportAdapter(
         val currentItem = paymentList[position]
 
         holder.tvPaymentId.text = "Payment ID: ${currentItem.PaymentId}"
-        holder.tvCustomerName.text = "Customer: ${currentItem.CustomerFirstName} ${currentItem.CustomerLastName}"
+        holder.tvCustomerName.text = "Name: ${currentItem.CustomerFirstName} ${currentItem.CustomerLastName}"
         holder.tvUtrNumber.text = "UTR: ${currentItem.UTRnumber}"
         holder.tvAmount.text = "Amount: ₹${currentItem.Amount}"
         holder.tvStatus.text = "Status: ${currentItem.PaymentStatus}"
         holder.tvPaymentDate.text = "Date: ${currentItem.FormattedPaymentDate}"
-        holder.tvCustomerMobile.text = "CustomerMobile: ${currentItem.CustomerMobile}"
+        holder.tvCustomerMobile.text = "Mobile: ${currentItem.CustomerMobile}"
 
         // Set status color
         when (currentItem.PaymentStatus.uppercase()) {
