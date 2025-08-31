@@ -4,6 +4,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("D:\\AndroidStudioProjects\\dms_android\\dms_android\\DMSKey.jks")
+            storePassword = "0123456"
+            keyPassword = "0123456"
+            keyAlias = "key0"
+        }
+    }
     namespace = "com.secureapps.dms.android"
     compileSdk = 35
 
