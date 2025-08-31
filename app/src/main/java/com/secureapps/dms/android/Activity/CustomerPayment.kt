@@ -111,7 +111,7 @@ class CustomerPayment : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val request = PaymentRequest(
-                    customerId = 1,  // TODO: Pass correct logged-in customerId
+                    customerId = 1,
                     utrNumber = utr,
                     amount = amount
                 )
